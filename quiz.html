@@ -1,0 +1,836 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz Schiena — SchienaLibera</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Nunito:wght@300;400;500;600&family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --teal:       #0D9488;
+  --teal-light: #14B8A6;
+  --teal-dark:  #0F766E;
+  --teal-soft:  rgba(13,148,136,0.15);
+  --teal-pale:  rgba(20,184,166,0.25);
+  --navy:       #0F172A;
+  --navy-mid:   #1E293B;
+  --navy-card:  #162032;
+  --slate:      #64748B;
+  --fog:        #94A3B8;
+  --border:     rgba(255,255,255,0.08);
+  --white:      #F8FAFC;
+  --success:    #10B981;
+  --warning:    #F59E0B;
+  --danger:     #EF4444;
+}
+
+/* ── ELEGANT ADDITIONS ── */
+:root {
+  --gold: #c8a96e;
+  --gold-dim: rgba(200,169,110,0.15);
+  --glass: rgba(255,255,255,0.04);
+  --glass-border: rgba(255,255,255,0.06);
+  --shine: rgba(255,255,255,0.06);
+}
+
+* { margin:0; padding:0; box-sizing:border-box; }
+html { scroll-behavior:smooth; }
+
+body {
+  font-family: 'Nunito', sans-serif;
+  background: var(--navy);
+  color: var(--white);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  overflow-x: hidden;
+}
+
+/* Grain texture overlay */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+  opacity: 0.018;
+  pointer-events: none;
+  z-index: 0;
+}
+body::after {
+  content: '';
+  position: fixed;
+  top: -30%; left: -20%;
+  width: 70%; height: 70%;
+  background: radial-gradient(ellipse, rgba(13,148,136,0.14) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+.glow-bottom {
+  position: fixed;
+  bottom: -20%; right: -10%;
+  width: 60%; height: 60%;
+  background: radial-gradient(ellipse, rgba(13,148,136,0.08) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+}
+
+.wrapper {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 540px;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  padding: 0 20px 60px;
+}
+
+/* ── HEADER ── */
+.header {
+  padding: 24px 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-shrink: 0;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.brand-dot {
+  width: 8px; height: 8px;
+  background: var(--teal-light);
+  border-radius: 50%;
+  animation: blink 2s ease-in-out infinite;
+  box-shadow: 0 0 8px rgba(20,184,166,0.6);
+}
+@keyframes blink { 0%,100%{opacity:1;box-shadow:0 0 8px rgba(20,184,166,0.6)} 50%{opacity:0.3;box-shadow:none} }
+.brand-name {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 14px;
+  letter-spacing: 0.08em;
+  color: var(--teal-light);
+  text-transform: uppercase;
+}
+.step-counter {
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--slate);
+}
+
+/* ── PROGRESS ── */
+.progress-wrap {
+  margin-top: 18px;
+}
+.progress-bg {
+  height: 3px;
+  background: var(--navy-mid);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--teal-light));
+  border-radius: 100px;
+  transition: width 0.6s cubic-bezier(0.4,0,0.2,1);
+}
+
+/* ── SCREENS ── */
+.screen { display: none; flex-direction: column; flex: 1; }
+.screen.active { display: flex; animation: fadeUp 0.4s ease forwards; }
+@keyframes fadeUp {
+  from { opacity:0; transform:translateY(20px); }
+  to   { opacity:1; transform:translateY(0); }
+}
+.screen-body {
+  padding: 36px 0 40px;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* ── LABELS ── */
+.eyebrow {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 12px;
+}
+
+/* ── INTRO ── */
+.intro-icon {
+  width: 80px; height: 80px;
+  background: linear-gradient(135deg, rgba(13,148,136,0.2), rgba(13,148,136,0.05));
+  border: 1px solid var(--teal-pale);
+  border-radius: 24px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 36px;
+  margin-bottom: 28px;
+  box-shadow: 0 8px 32px rgba(13,148,136,0.15), inset 0 1px 0 rgba(255,255,255,0.06);
+  position: relative;
+  overflow: hidden;
+}
+.intro-icon::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 40%;
+  background: linear-gradient(to bottom, rgba(255,255,255,0.06), transparent);
+  border-radius: 24px 24px 0 0;
+}
+.h1 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: clamp(30px, 8vw, 46px);
+  line-height: 1.05;
+  color: var(--white);
+  margin-bottom: 18px;
+  letter-spacing: -0.02em;
+}
+.h1 em {
+  font-style: italic;
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 600;
+  font-size: 1.08em;
+  color: var(--teal-light);
+}
+.body-text {
+  font-size: 16px;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--fog);
+  margin-bottom: 32px;
+}
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 40px;
+}
+.tag {
+  background: var(--teal-soft);
+  border: 1px solid var(--teal-pale);
+  color: var(--teal-light);
+  font-size: 12px;
+  font-weight: 600;
+  padding: 6px 14px;
+  border-radius: 100px;
+  letter-spacing: 0.02em;
+}
+
+/* ── BUTTONS ── */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 15px;
+  padding: 17px 32px;
+  border-radius: 100px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.25s cubic-bezier(0.4,0,0.2,1);
+  width: 100%;
+  text-decoration: none;
+  letter-spacing: 0.03em;
+  position: relative;
+  overflow: hidden;
+}
+.btn::after {
+  content: '';
+  position: absolute;
+  top: 0; left: -100%;
+  width: 60%;
+  height: 100%;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.12), transparent);
+  transform: skewX(-20deg);
+  transition: left 0.5s ease;
+}
+.btn:hover::after { left: 150%; }
+.btn-primary {
+  background: linear-gradient(135deg, var(--teal), var(--teal-dark));
+  color: white;
+  box-shadow: 0 8px 28px rgba(13,148,136,0.35), 0 1px 0 rgba(255,255,255,0.1) inset;
+}
+.btn-primary:hover {
+  background: linear-gradient(135deg, var(--teal-light), var(--teal));
+  transform: translateY(-2px);
+  box-shadow: 0 14px 40px rgba(13,148,136,0.5), 0 1px 0 rgba(255,255,255,0.15) inset;
+}
+.btn-primary:active { transform: translateY(0); }
+.btn-primary:disabled {
+  background: var(--navy-mid);
+  box-shadow: none;
+  cursor: not-allowed;
+  transform: none;
+  color: var(--slate);
+}
+.btn-arrow { font-size: 18px; transition: transform 0.2s; }
+.btn-primary:not(:disabled):hover .btn-arrow { transform: translateX(5px); }
+.intro-note {
+  margin-top: 14px;
+  text-align: center;
+  font-size: 12px;
+  color: var(--slate);
+}
+
+/* ── QUESTIONS ── */
+.q-number {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: var(--teal);
+  margin-bottom: 12px;
+}
+.h2 {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: clamp(20px, 5.5vw, 28px);
+  line-height: 1.2;
+  color: var(--white);
+  margin-bottom: 30px;
+}
+.options {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex: 1;
+}
+.option {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 18px 20px;
+  background: linear-gradient(135deg, var(--navy-card), rgba(22,32,50,0.8));
+  border: 1px solid var(--glass-border);
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4,0,0.2,1);
+  text-align: left;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  overflow: hidden;
+}
+.option::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent);
+}
+.option:hover {
+  background: linear-gradient(135deg, rgba(13,148,136,0.12), rgba(13,148,136,0.04));
+  border-color: rgba(20,184,166,0.3);
+  transform: translateX(4px);
+}
+.option.selected {
+  background: linear-gradient(135deg, rgba(13,148,136,0.2), rgba(13,148,136,0.08));
+  border-color: var(--teal-light);
+  box-shadow: 0 0 0 3px rgba(13,148,136,0.12), 0 4px 20px rgba(13,148,136,0.15);
+  transform: translateX(4px);
+}
+
+.opt-radio {
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,0.2);
+  flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  transition: all 0.18s;
+}
+.option.selected .opt-radio {
+  border-color: var(--teal-light);
+  background: var(--teal-light);
+}
+.opt-dot {
+  width: 8px; height: 8px;
+  background: var(--navy);
+  border-radius: 50%;
+  opacity: 0; transform: scale(0);
+  transition: all 0.18s;
+}
+.option.selected .opt-dot { opacity:1; transform:scale(1); }
+.opt-text {
+  font-size: 15px;
+  font-weight: 400;
+  line-height: 1.4;
+  color: var(--fog);
+  flex: 1;
+  transition: color 0.18s;
+}
+.option.selected .opt-text { color: var(--white); font-weight: 600; }
+.btn-wrap { margin-top: 28px; }
+
+/* ── RESULT ── */
+.result-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 7px 16px;
+  border-radius: 100px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  margin-bottom: 22px;
+}
+.badge-l1 { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:#34D399; }
+.badge-l2 { background:rgba(245,158,11,0.15); border:1px solid rgba(245,158,11,0.35); color:#FBB040; }
+.badge-l3 { background:rgba(239,68,68,0.15);  border:1px solid rgba(239,68,68,0.35);  color:#F87171; }
+
+.score-card {
+  background: linear-gradient(135deg, var(--navy-card), rgba(22,32,50,0.9));
+  border: 1px solid var(--glass-border);
+  border-radius: 18px;
+  padding: 20px 22px;
+  margin-bottom: 22px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  box-shadow: 0 4px 24px rgba(0,0,0,0.2), inset 0 1px 0 rgba(255,255,255,0.04);
+  position: relative;
+  overflow: hidden;
+}
+.score-card::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(20,184,166,0.2), transparent);
+}
+.score-num {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 800;
+  font-size: 52px;
+  line-height: 1;
+  color: var(--white);
+}
+.score-max {
+  font-family: 'Poppins', sans-serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--slate);
+  align-self: flex-end;
+  padding-bottom: 8px;
+}
+.score-bar-wrap { flex: 1; }
+.score-bar-label { font-size: 12px; color: var(--slate); margin-bottom: 8px; }
+.score-bar-bg {
+  height: 8px;
+  background: var(--navy-mid);
+  border-radius: 100px;
+  overflow: hidden;
+}
+.score-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--teal), var(--teal-light));
+  border-radius: 100px;
+  transition: width 0.7s ease;
+}
+
+.result-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: clamp(20px, 5vw, 26px);
+  line-height: 1.2;
+  color: var(--white);
+  margin-bottom: 12px;
+}
+.result-body {
+  font-size: 15px;
+  font-weight: 300;
+  line-height: 1.75;
+  color: var(--fog);
+  margin-bottom: 24px;
+}
+.divider {
+  height: 1px;
+  background: var(--border);
+  margin: 22px 0;
+}
+.plan-label {
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--teal-light);
+  margin-bottom: 16px;
+}
+.plan-list { display:flex; flex-direction:column; gap:12px; margin-bottom:28px; }
+.plan-item { display:flex; align-items:flex-start; gap:14px; }
+.plan-icon {
+  width: 34px; height: 34px;
+  background: linear-gradient(135deg, rgba(13,148,136,0.2), rgba(13,148,136,0.06));
+  border: 1px solid rgba(20,184,166,0.2);
+  border-radius: 10px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 15px;
+  flex-shrink: 0;
+  margin-top: 1px;
+  box-shadow: 0 2px 8px rgba(13,148,136,0.1);
+}
+.plan-text { font-size: 14px; font-weight: 400; line-height: 1.6; color: var(--fog); }
+
+.cta-box {
+  background: linear-gradient(135deg, rgba(13,148,136,0.12), rgba(13,148,136,0.04));
+  border: 1px solid rgba(20,184,166,0.2);
+  border-top: 2px solid var(--teal-light);
+  border-radius: 20px;
+  padding: 26px 24px;
+  margin-bottom: 14px;
+  position: relative;
+  overflow: hidden;
+}
+.cta-box::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 60px;
+  background: linear-gradient(to bottom, rgba(20,184,166,0.06), transparent);
+}
+.cta-box-title {
+  font-family: 'Poppins', sans-serif;
+  font-weight: 700;
+  font-size: 17px;
+  color: var(--white);
+  margin-bottom: 8px;
+  line-height: 1.3;
+}
+.cta-box-sub {
+  font-size: 14px;
+  font-weight: 300;
+  color: var(--fog);
+  line-height: 1.6;
+  margin-bottom: 20px;
+}
+.result-skip {
+  text-align: center;
+  font-size: 12px;
+  color: var(--slate);
+  margin-top: 12px;
+  cursor: pointer;
+}
+.result-skip a { color: var(--teal-light); text-decoration: none; }
+.result-skip a:hover { text-decoration: underline; }
+
+/* ── FOOTER ── */
+.footer {
+  padding: 20px 0 0;
+  border-top: 1px solid var(--border);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: auto;
+}
+.footer-brand { font-family:'Poppins',sans-serif; font-size:12px; font-weight:700; color:var(--slate); letter-spacing:0.06em; text-transform:uppercase; }
+.footer-note { font-size:11px; color:var(--navy-mid); }
+</style>
+</head>
+<body>
+<div class="glow-bottom"></div>
+<div class="wrapper">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div class="brand">
+      <div class="brand-dot"></div>
+      <div class="brand-name">SchienaLibera</div>
+    </div>
+    <div class="step-counter" id="step-counter"></div>
+  </div>
+
+  <!-- PROGRESS -->
+  <div class="progress-wrap" id="progress-wrap" style="display:none">
+    <div class="progress-bg">
+      <div class="progress-fill" id="progress-fill" style="width:0%"></div>
+    </div>
+  </div>
+
+  <!-- ══════════ INTRO ══════════ -->
+  <div class="screen active" id="screen-intro">
+    <div class="screen-body">
+      <div class="intro-icon">🧘</div>
+      <p class="eyebrow">Test gratuito · 2 minuti</p>
+      <h1 class="h1">Quanto sta<br>resistendo<br><em>la tua schiena?</em></h1>
+      <p class="body-text">5 domande per scoprire il tuo livello di rischio — e cosa fare adesso prima che il problema peggiori.</p>
+      <div class="tags">
+        <span class="tag">Lavoratori sedentari</span>
+        <span class="tag">Cervicale &amp; lombare</span>
+        <span class="tag">Risultato immediato</span>
+      </div>
+      <button class="btn btn-primary" onclick="startQuiz()">
+        Inizia il quiz <span class="btn-arrow">→</span>
+      </button>
+      <p class="intro-note">Nessun dato richiesto per iniziare</p>
+    </div>
+  </div>
+
+  <!-- ══════════ DOMANDA ══════════ -->
+  <div class="screen" id="screen-question">
+    <div class="screen-body">
+      <p class="q-number" id="q-number">Domanda 1 di 5</p>
+      <h2 class="h2" id="q-text"></h2>
+      <div class="options" id="options-list"></div>
+      <div class="btn-wrap">
+        <button class="btn btn-primary" id="btn-next" onclick="nextQuestion()" disabled>
+          Avanti <span class="btn-arrow">→</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════ RISULTATO ══════════ -->
+  <div class="screen" id="screen-result">
+    <div class="screen-body">
+      <p class="eyebrow">Il tuo profilo</p>
+      <div class="result-badge" id="result-badge"></div>
+      <div class="score-card">
+        <div>
+          <div style="display:flex;align-items:baseline;gap:4px">
+            <span class="score-num" id="score-num">0</span>
+            <span class="score-max">/19</span>
+          </div>
+        </div>
+        <div class="score-bar-wrap">
+          <div class="score-bar-label">Punteggio di rischio</div>
+          <div class="score-bar-bg">
+            <div class="score-bar-fill" id="score-bar" style="width:0%"></div>
+          </div>
+        </div>
+      </div>
+      <h2 class="result-title" id="result-title"></h2>
+      <p class="result-body" id="result-body"></p>
+      <div class="divider"></div>
+      <p class="plan-label">Il tuo mini piano d'azione</p>
+      <div class="plan-list" id="plan-list"></div>
+      <div class="cta-box">
+        <div class="cta-box-title" id="cta-title"></div>
+        <div class="cta-box-sub" id="cta-sub"></div>
+        <a class="btn btn-primary" href="https://www.schienalibera.com/contatti" target="_blank" rel="noopener noreferrer">
+          Ricevi il piano completo <span class="btn-arrow">→</span>
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-brand">SchienaLibera</div>
+    <div class="footer-note">Movimento preventivo · non terapia medica</div>
+  </div>
+
+</div>
+
+<script>
+// ─── CONFIG ──────────────────────────────────
+const APP_URL = 'https://www.schienalibera.com/contatti';
+
+// ─── DATI ────────────────────────────────────
+const questions = [
+  {
+    text: "Quante ore al giorno resti seduto senza alzarti?",
+    options: [
+      { text: "Meno di 4 ore", pts: 1 },
+      { text: "4–6 ore", pts: 2 },
+      { text: "6–8 ore", pts: 3 },
+      { text: "Più di 8 ore", pts: 4 }
+    ]
+  },
+  {
+    text: "Dove senti tensione o dolore più spesso?",
+    options: [
+      { text: "Nessuna tensione particolare", pts: 0 },
+      { text: "Solo cervicale (collo e spalle)", pts: 2 },
+      { text: "Solo lombare (bassa schiena)", pts: 2 },
+      { text: "Entrambe le zone", pts: 4 }
+    ]
+  },
+  {
+    text: "Con che frequenza il fastidio ti distrae durante il lavoro?",
+    options: [
+      { text: "Mai", pts: 0 },
+      { text: "Raramente — 1–2 volte a settimana", pts: 1 },
+      { text: "Spesso — quasi ogni giorno", pts: 3 },
+      { text: "Sempre — è una costante", pts: 4 }
+    ]
+  },
+  {
+    text: "Hai già provato qualcosa per risolvere il problema?",
+    options: [
+      { text: "No, non ho ancora fatto nulla", pts: 1 },
+      { text: "Sì, qualche esercizio su YouTube", pts: 2 },
+      { text: "Sì, sono andato dal fisioterapista", pts: 2 },
+      { text: "Ho provato più cose ma non ho mai continuato", pts: 3 }
+    ]
+  },
+  {
+    text: "Come ti senti fisicamente a fine giornata lavorativa?",
+    options: [
+      { text: "Bene — nessun problema particolare", pts: 0 },
+      { text: "Un po' stanco ma niente di grave", pts: 1 },
+      { text: "Rigido e affaticato — ho bisogno di tempo per recuperare", pts: 3 },
+      { text: "A pezzi — il corpo me lo fa sentire ogni sera", pts: 4 }
+    ]
+  }
+];
+
+const results = {
+  1: {
+    badgeClass: 'badge-l1',
+    badgeText: '● Livello 1',
+    levelLabel: 'Livello 1',
+    title: 'Schiena in equilibrio — ma attenzione',
+    body: 'La tua schiena regge ancora bene. Ma il profilo che emerge indica che sei nella fase in cui è più facile intervenire. Chi aspetta il dolore cronico di solito aspetta troppo.',
+    plan: [
+      { icon: '⏱', text: 'Alzati almeno una volta ogni 45–50 minuti' },
+      { icon: '🔄', text: 'Fai 2–3 rotazioni delle spalle ad ogni pausa' },
+      { icon: '📊', text: 'Monitora come ti senti nel pomeriggio — i segnali arrivano prima del dolore' }
+    ],
+    ctaTitle: 'Vuoi un sistema che lo faccia automaticamente per te?',
+    ctaSub: 'SchienaLibera gestisce reminder, esercizi guidati e tracking. Inizia gratis.'
+  },
+  2: {
+    badgeClass: 'badge-l2',
+    badgeText: '● Livello 2',
+    levelLabel: 'Livello 2',
+    title: 'Tensione cronica in formazione',
+    body: 'Il tuo punteggio indica una tensione che si sta strutturando. Non è ancora grave — ma è esattamente la fase in cui la maggior parte delle persone aspetta, normalizza, rimanda.',
+    plan: [
+      { icon: '🕐', text: 'Identifica i momenti in cui la tensione aumenta — di solito dopo le 14' },
+      { icon: '💡', text: 'Introduci una micro-pausa attiva ogni ora, anche solo 3 minuti' },
+      { icon: '🚫', text: 'Smetti di aspettare la sera per fare stretching — non funziona, non lo farai' }
+    ],
+    ctaTitle: 'Vuoi un protocollo che pensi per te?',
+    ctaSub: 'Reminder contestuale, esercizi guidati e tracking progressi. Il sistema si attiva automaticamente.'
+  },
+  3: {
+    badgeClass: 'badge-l3',
+    badgeText: '● Livello 3',
+    levelLabel: 'Livello 3',
+    title: 'Schiena sotto stress — serve un intervento',
+    body: 'Il tuo profilo è chiaro: ore di seduta prolungate, tensione già presente, soluzioni già provate senza continuità. Non è un problema di forza di volontà — è un problema di sistema.',
+    plan: [
+      { icon: '⚡', text: 'Non aspettare il momento giusto — non arriverà da solo' },
+      { icon: '🔗', text: 'Il problema non è la palestra o il fisio — è la continuità tra una seduta e l\'altra' },
+      { icon: '🎯', text: 'Hai bisogno di un sistema che lavori durante la tua giornata, non dopo' }
+    ],
+    ctaTitle: 'SchienaLibera è stato costruito esattamente per questo profilo.',
+    ctaSub: 'Inizia oggi — il sistema lavora durante la tua giornata, non dopo.'
+  }
+};
+
+// ─── STATO ───────────────────────────────────
+let currentQ = 0;
+let totalScore = 0;
+let selectedPts = null;
+let userLevel = 1;
+
+// ─── NAVIGAZIONE ─────────────────────────────
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function updateProgress(pct, text) {
+  document.getElementById('progress-wrap').style.display = 'block';
+  document.getElementById('progress-fill').style.width = pct + '%';
+  document.getElementById('step-counter').textContent = text;
+}
+
+// ─── QUIZ ─────────────────────────────────────
+function startQuiz() {
+  currentQ = 0; totalScore = 0; selectedPts = null;
+  renderQuestion();
+  showScreen('screen-question');
+}
+
+function renderQuestion() {
+  const pct = (currentQ / questions.length) * 100;
+  updateProgress(pct, `${currentQ + 1} / ${questions.length}`);
+
+  const q = questions[currentQ];
+  document.getElementById('q-number').textContent = `Domanda ${currentQ + 1} di ${questions.length}`;
+  document.getElementById('q-text').textContent = q.text;
+
+  const list = document.getElementById('options-list');
+  list.innerHTML = '';
+  q.options.forEach(o => {
+    const btn = document.createElement('button');
+    btn.className = 'option';
+    btn.innerHTML = `<div class="opt-radio"><div class="opt-dot"></div></div><span class="opt-text">${o.text}</span>`;
+    btn.addEventListener('click', () => selectOption(btn, o.pts));
+    list.appendChild(btn);
+  });
+
+  selectedPts = null;
+  const next = document.getElementById('btn-next');
+  next.disabled = true;
+  next.innerHTML = currentQ < questions.length - 1
+    ? 'Avanti <span class="btn-arrow">→</span>'
+    : 'Vedi il risultato <span class="btn-arrow">→</span>';
+}
+
+function selectOption(el, pts) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  el.classList.add('selected');
+  selectedPts = pts;
+  document.getElementById('btn-next').disabled = false;
+}
+
+function nextQuestion() {
+  if (selectedPts === null) return;
+  totalScore += selectedPts;
+  currentQ++;
+  if (currentQ < questions.length) renderQuestion();
+  else renderResult();
+}
+
+// ─── RISULTATO ────────────────────────────────
+function renderResult() {
+  if (totalScore <= 5) userLevel = 1;
+  else if (totalScore <= 11) userLevel = 2;
+  else userLevel = 3;
+
+  const r = results[userLevel];
+
+  document.getElementById('result-badge').className = `result-badge ${r.badgeClass}`;
+  document.getElementById('result-badge').textContent = r.badgeText;
+  document.getElementById('result-title').textContent = r.title;
+  document.getElementById('result-body').textContent = r.body;
+  document.getElementById('cta-title').textContent = r.ctaTitle;
+  document.getElementById('cta-sub').textContent = r.ctaSub;
+  document.getElementById('plan-list').innerHTML = r.plan.map(p =>
+    `<div class="plan-item"><div class="plan-icon">${p.icon}</div><p class="plan-text">${p.text}</p></div>`
+  ).join('');
+
+  updateProgress(100, 'Completato ✓');
+  showScreen('screen-result');
+  animateScore(totalScore);
+}
+
+function animateScore(target) {
+  let current = 0;
+  const step = Math.max(1, Math.round(target / 18));
+  const interval = setInterval(() => {
+    current = Math.min(current + step, target);
+    document.getElementById('score-num').textContent = current;
+    document.getElementById('score-bar').style.width = (current / 19 * 100) + '%';
+    if (current >= target) clearInterval(interval);
+  }, 45);
+}
+</script>
+</body>
+</html>
