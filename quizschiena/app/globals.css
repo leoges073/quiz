@@ -1,0 +1,153 @@
+@import 'tailwindcss';
+@import 'tw-animate-css';
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* SchienaLibera Theme */
+  --teal: #0D9488;
+  --teal-light: #14B8A6;
+  --teal-dark: #0F766E;
+  --teal-soft: #F0FDFA;
+  --teal-pale: #CCFBF1;
+  --navy: #0F172A;
+  --navy-mid: #1E293B;
+  --slate: #64748B;
+  --fog: #CBD5E1;
+  --off-white: #F8FAFC;
+  --border-color: #E2E8F0;
+  --amber: #F59E0B;
+  --amber-soft: #FEF3C7;
+  --success: #10B981;
+  --warning: #EF4444;
+
+  /* Default tokens */
+  --background: var(--off-white);
+  --foreground: var(--navy);
+  --card: #FFFFFF;
+  --card-foreground: var(--navy);
+  --primary: var(--teal);
+  --primary-foreground: #FFFFFF;
+  --secondary: var(--teal-soft);
+  --secondary-foreground: var(--teal-dark);
+  --muted: var(--off-white);
+  --muted-foreground: var(--slate);
+  --accent: var(--teal-soft);
+  --accent-foreground: var(--teal-dark);
+  --destructive: var(--warning);
+  --destructive-foreground: #FFFFFF;
+  --border: var(--border-color);
+  --input: var(--border-color);
+  --ring: var(--teal);
+  --radius: 0.875rem;
+}
+
+@theme inline {
+  --font-sans: var(--font-dm-sans), 'DM Sans', system-ui, sans-serif;
+  --font-heading: var(--font-syne), 'Syne', system-ui, sans-serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-teal: var(--teal);
+  --color-teal-light: var(--teal-light);
+  --color-teal-dark: var(--teal-dark);
+  --color-teal-soft: var(--teal-soft);
+  --color-teal-pale: var(--teal-pale);
+  --color-navy: var(--navy);
+  --color-navy-mid: var(--navy-mid);
+  --color-slate: var(--slate);
+  --color-fog: var(--fog);
+  --color-off-white: var(--off-white);
+  --color-success: var(--success);
+  --color-warning: var(--warning);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes blink {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.3; }
+}
+
+@keyframes popIn {
+  from {
+    transform: scale(0.5);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.animate-fadeUp {
+  animation: fadeUp 0.4s ease forwards;
+}
+
+.animate-blink {
+  animation: blink 2s ease-in-out infinite;
+}
+
+.animate-popIn {
+  animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.animate-spin-fast {
+  animation: spin 0.7s linear infinite;
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease forwards;
+}
